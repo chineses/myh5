@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+</head>
+<body>
+	<canvas id = 'can' width = '800' height = '600' style = 'display:block;margin:50px auto;border:1px solid #ccc'></canvas>
+    
+    <script type="text/javascript" src = 'digit.js'></script>
+    <script type="text/javascript">
+        var px = 100, py = 50;
+        var radius = 4;
+         //var endTime = new Date(2015, 6, 22, 11, 21, 20);
+         var endTime = new Date();
+         var curTime = 0;
+         var h = endTime.getHours()*3600+endTime.getMinutes()*60+endTime.getSeconds();
+        //var curTime = new Date();
+         var lastTime = parseInt((h - curTime)/1000);
+          var cSecond = parseInt(lastTime%60);
+
+          var balls = [];
+          var colors = ['#123456', 'red', 'blue', '#ccc', 'yellow'];
+    	window.onload = function(){
+    		var can = document.getElementById('can');
+    		if(can){
+    			var ctx = can.getContext('2d');
+    		}else{
+    			alert('当前浏览器不支持canvas');
+    		}
+
+
+            setInterval(function(){
+                 render(ctx);
+
+                 update();
+            }, 50)
+           
+
+    	}
+
+        function update(){
+            var newTime = new Date();
+            //var nTime = parseInt((endTime - newTime)/1000);
+            nTime = newTime.getHours()*3600+newTime.getMinutes()*60+newTime.getSeconds();
+
+            var nHour = parseInt(nTime/3600);
+            var nMinute = parseInt((nTime - nHour*3600)/60);
+            var nSecond = parseInt(nTime%60);
+
+            var oHour = parseInt(lastTime/3600);
+            var oMinute = parseInt((lastTime - oHour*3600)/60);
+            var oSecond = parseInt(lastTime%60);
+            if(lastTime != nTime){
+
+                if(parseInt(oHour/10) != parseInt(nHour/10)){
+                    addBalls(px, py, parseInt(nHour/10));
+                }
+                if(parseInt(oHour%10) != parseInt(nHour%10)){
+                    addBalls(px+16*radius, py, parseInt(nHour/10));
+                }
+                if(parseInt(oMinute/10) != parseInt(nMinute/10)){
+                    addBalls(px+42*radius, py, parseInt(nHour/10));
+                }
+                if(parseInt(oMinute%10) != parseInt(nMinute%10)){
+                    addBalls(px+60*radius, py, parseInt(nMinute%10));
+                }
+                if(parseInt(oSecond/10) != parseInt(nSecond/10)){
+                    addBalls(px+86*radius, py, parseInt(nSecond/10));
+                }
+                if(parseInt(oSecond%10) != parseInt(nSecond%10)){
+                    addBalls(px+103*radius, py, parseInt(nSecond%10));
+                }
+
+
+                lastTime = nTime;
+            }
+
+            moveBalls();
+
+
+
+        }
+
+        function moveBalls(){
+            for(var i = 0; i < balls.length;i++){
+                balls[i].x += balls[i].vx;
+                balls[i].y += balls[i].vy;
+                balls[i].vy += balls[i].g;
+
+                if(balls[i].y > 596){
+                    balls[i].y = 596;
+                    balls[i].vy = -balls[i].vy*0.7;
+                }
+            }
+
+
+            var cnt = 0;
+            for(var j = 0; j < balls.length; j++){
+                if(balls[j].x-radius < 800 && balls[j].x+radius > 0){
+                    balls[cnt++] = balls[j];
+                }
+            }
+
+            while(balls.length > cnt){
+                balls.pop();
+            }
+        }
+
+        function addBalls(x, y, num){
+            for(var i = 0; i < digit[num].length;i++){
+                for(var j = 0; j < digit[num][i].length;j++){
+                    if(digit[num][i][j] == 1){
+                        aBall = {
+                            x:x+j*2*(radius+1)+radius+1,
+                            y:y+i*2*(radius+1)+radius+1,
+                            g:2,
+                            vx:Math.floor(Math.random()*9-4),
+                            vy: -5,
+                            color:colors[Math.floor(Math.random()*colors.length)]
+                        };
+                        balls.push(aBall);
+                    }
+                }
+            }
+        }
+
+        function render(ctx){
+            var hour = parseInt(lastTime/3600);
+            var minute = parseInt((lastTime - hour*3600)/60);
+            var second = parseInt(lastTime%60);
+            ctx.clearRect(0, 0 ,800, 600);
+            render2(px, py, parseInt(hour/10),radius,ctx);
+            render2(px+16*radius, py, hour%10,radius,ctx);
+            render2(px+32*radius, py, 10,radius,ctx);
+            render2(px+42*radius, py, parseInt(minute/10),radius,ctx);
+            render2(px+60*radius, py, minute%10,radius,ctx);
+            render2(px+76*radius, py, 10,radius,ctx);
+            render2(px+86*radius, py, parseInt(second/10),radius,ctx);
+            render2(px+103*radius, py, second%10,radius,ctx);
+
+            for(var i = 0; i < balls.length; i ++){
+                ctx.beginPath();
+                    ctx.fillStyle = balls[i].color;
+                    ctx.arc(balls[i].x, balls[i].y, radius, 0, Math.PI*2);
+                ctx.closePath();
+                    ctx.fill();
+            }
+        }
+
+        function render2(x, y, num,r,ctx){
+            for(var i = 0; i < digit[num].length; i ++){
+                for(var j = 0;j < digit[num][i].length;j ++){
+                        if(digit[num][i][j] == 1){
+                            ctx.beginPath();
+                            ctx.fillStyle = 'blue';
+                            ctx.arc(x+j*2*(r+1)+r+1, y+i*2*(r+1)+r+1, r, 0, Math.PI*2);
+                            ctx.closePath();
+                            ctx.fill();
+                    }
+                }
+            }
+        }
+
+
+    </script>
+</body>
+</html>
