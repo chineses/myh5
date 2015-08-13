@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+</head>
+<body>
+    <canvas id = 'canvas' width = '500' height = '500' style = 'display:block;margin:0 auto;border:1px solid #ccc'></canvas>
+
+	  
+	<script>
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+
+		var timer = 0;
+
+		var self = {
+			x:280,
+			y:460,
+			w:35,
+			h:35
+		};
+		var enemy = [];
+		var bullet = [];
+
+		initBgImg();
+
+	 // initPlane(self.x, self.y, self.w, self.h);
+
+		initEnemy(5);
+		initBullet(self,1);
+
+		setInterval(function(){
+			timer++;
+			if(timer == 100){
+				initEnemy(3);
+			}else if(timer%100 == 0){
+				initEnemy(5);
+			}
+				
+			enemyMove(self);
+			updateEnemy();
+
+
+		},50);
+
+document.onkeydown = keyDown;
+
+
+function keyDown(e){
+	  // var realkey = String.fromCharCode(e.which);
+	  var currKey = e.keyCode||e.which||e.charCode;
+	  switch(currKey){
+	  case 37:keyName = 'left';   break;
+       case 38:keyName = "up";   break;
+       case 39:keyName = "right";   break;
+       case 40:keyName = "down";   break;
+       default:keyName = 'nope'; break;
+	  }
+	 switch(keyName){
+	 	case 'left':self.x-=10;break;
+	 	case 'up':self.y-=10;break;
+	 	case 'right':self.x+=10;break;
+	 	case 'down': self.y += 10; break;
+	 }
+	 if(self.x > canvas.width)
+	 	self.x = 30;
+	 else if(self.x < 0)
+	 	self.x = canvas.width-30;
+	 if(self.y < 30)
+	 	self.y = canvas.height-30;
+	else if(self.y > canvas.height-30)
+	 	self.y = 30;
+}	
+
+function initBullet(self,num){
+	ctx.save();
+	var b = {
+		x:self.x,
+		y:self.y,
+		vx:0,
+		vy:-8
+	}
+	bullet.push(b);
+	updateBullet();
+	ctx.restore();
+
+}
+
+function updateBullet(){
+	var cnt = 0;
+	for(var i = 0; i < bullet.length; i++){
+		bullet[i].y += bullet[i].vy;
+	}
+
+	for(var i = 0; i < bullet.length; i++){
+		if(bullet[i].y > 0){
+			bullet[cnt++] = bullet[i];
+		}
+	}
+	while(bullet.length > cnt)
+		bullet.pop();
+
+	console.log(bullet.length);
+	moveBullet();
+}
+
+function moveBullet(){
+	for(var i = 0; i < bullet.length;i++){
+		ctx.save();
+			ctx.fillStyle = 'green';
+			ctx.fillRect(bullet[i].x-35, bullet[i].y-30, 3, 5);
+		ctx.restore();
+	}
+
+}
+
+function updateEnemy(){
+	for(var i = 0; i < enemy.length;i++){
+		enemy[i].x += enemy[i].vx;
+		enemy[i].y += enemy[i].vy;
+
+		if(enemy[i].x < 15 || enemy[i].x > canvas.width-15)
+			enemy[i].vx = -enemy[i].vx;
+		
+	}
+	
+}
+
+ function initBgImg(){
+ 	ctx.save();
+
+ 	var bgImg = ctx.createRadialGradient(canvas.width/2,canvas.height,0,canvas.width/2,canvas.height,canvas.height);
+ 	bgImg.addColorStop(0, '#ccc');
+ 	bgImg.addColorStop(1, 'black');
+ 	ctx.fillStyle = bgImg;
+ 	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ 	ctx.restore();
+ }
+
+ function initPlane(x,y,w,h){
+ 	ctx.save();
+ 	// ctx.translate(x, y);
+ 	// ctx.rotate(Math.PI/4);
+ 	var img = new Image();
+ 	img.src = 'images/p1.png';
+ 	img.onload = function(){
+ 		ctx.rotate(Math.PI);
+ 		ctx.drawImage(img,-x,-y);
+ 	}
+
+ 	ctx.restore();
+ }
+
+ function initEnemy(num){
+ 	 
+ 	for(var i = 0; i < num; i++){
+ 		var p = {
+ 			// x:Math.random()*canvas.width,
+ 			x:15+Math.random()*(canvas.width-15),
+ 			y:15,
+ 			vx:0,
+ 			// vx:Math.random()*10-5,
+ 			vy:Math.random()*5
+ 		}
+ 		enemy.push(p);
+ 	}
+ 	//var imgE = new Array(enemy.length);
+ 	// for(var j = 0;j < enemy.length;j++){
+ 		
+ 	// 	console.log(enemy[j]);
+ 	// 	ctx.save();
+ 	// 	imgE[j] = new Image();
+ 		
+ 	// 	var x = enemy[j].x;
+ 	// 	var y = enemy[j].y;
+ 	// 	var vx = enemy[j].vx;
+ 	// 	var vy = enemy[j].vy;
+
+ 	// 	//ctx.strokeRect(x, y, 30,30);
+ 	// 	imgE[j].src = '/images/p3.png';
+ 	// 	var tmpImg = imgE[j];
+ 	// 	// imgE[j].src = '/images/p'+Math.floor(Math.random()*2+3)+'.png';
+ 	// 	imgE[j].onload = function(){
+ 	// 		// ctx.translate(x,y);
+ 	// 		// ctx.rotate(Math.PI/2);
+ 	// 		ctx.drawImage(tmpImg, -x,-y);
+ 	// 	};
+
+ 	// 	ctx.restore();
+ 	// }
+ }
+
+ function enemyMove(self){
+ 	 ctx.clearRect(0,0,500,500);
+ 	 initBgImg();
+ 	 initBullet(self,1);
+ 	 initPlane(self.x, self.y, self.w, self.h);
+ 	 var len = enemy.length;
+ 	 var death = [];
+ 	for(var j =0;j< len; j++){
+ 		var x = enemy[j].x;
+ 		var y = enemy[j].y;
+ 		var vx = enemy[j].vx;
+ 		var vy = enemy[j].vy;
+
+
+ 		for(var k = 0; k < bullet.length; k++){
+ 			if(bullet[k].x < x +30 && bullet[k].x > x+10 && bullet[k].y < y + 30 && bullet[k].y > y){
+ 				death.push(j);
+ 				break;
+ 			}
+ 		}
+ 		
+ 	}
+
+ 	var cnt = 0;
+ 	if(death.length != 0)
+ 	for(var j = 0 ; j < enemy.length; j++){
+ 		for(var k = 0; k < death.length; k++){
+ 			if(j != death[k])
+ 				enemy[cnt++] = enemy[j];
+ 		}
+ 	}else
+ 	cnt = enemy.length;
+ 	while(enemy.length > cnt){
+ 		enemy.pop();
+ 	}
+
+ 	for(var i = 0; i < enemy.length;i++){
+
+
+ 		ctx.fillStyle = 'red';
+ 		// ctx.strokeRect(x,y,50,50);
+ 		ctx.beginPath();
+ 		ctx.arc(enemy[i].x, enemy[i].y, 15, 0, Math.PI*2);
+ 		ctx.fill();
+ 		ctx.closePath();
+
+ 	}
+
+ 		
+ }
+
+		
+	</script>
+	
+
+</body>
+</html>
